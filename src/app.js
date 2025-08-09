@@ -7,8 +7,6 @@ app.use(express.json());
 
 app.post("/signup",async (req,res)=>{
 
-    let { firstName, lastName, emailId, password, age} = req?.body;
-
     try{
 
     let insertDoc= await User.create(req.body);
@@ -122,11 +120,24 @@ app.delete("/delete",async (req,res)=>{
 
 });
 
-app.patch("/update",async (req,res)=>{
+app.patch("/update/:userId",async (req,res)=>{
 
-    let { userId } = req?.body;
+    let userId= req.params?.userId;
+
+    if(!userId){
+        return res.status(400).json({
+            code:400,
+            message:"Please provide a valid userId"
+        });
+    }
 
     try{
+
+        let data = req?.body;
+
+        Object.keys(data).forEach(function(val){
+            if(val=="emailId")throw new Error("Update ot allowed for email");
+        });
         let update = await User.findByIdAndUpdate(userId,req.body,{runValidators:true});
 
         if(update){
@@ -149,11 +160,25 @@ app.patch("/update",async (req,res)=>{
     }
 });
 
-app.patch("/update-by-email",async (req,res)=>{
+app.patch("/update-by-email/:email",async (req,res)=>{
 
-    let { email } = req?.body;
+    let email = req.params?.email;
+
+    if(!email){
+        return res.status(400).json({
+            code:400,
+            message:"Please provide a valid email"
+        });
+    }
 
     try{
+
+        let data = req?.body;
+
+        Object.keys(data).forEach(function(val){
+            if(val=="emailId")throw new Error("Update ot allowed for email");
+        });
+
         let update = await User.updateOne({emailId:email},req.body,{runValidators:true});
 
         if(update.modifiedCount>0){
