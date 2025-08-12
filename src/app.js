@@ -2,14 +2,40 @@ const express=require("express");
 const app= express();//INSTANCE OF EXPRESS
 const connectDB=require("./config/database");
 const User = require("./models/user.js");
+const { validateSignUpData } = require("./utils/validation.js");
+const bcrypt= require("bcrypt");
+const validator = require("validator");
 
 app.use(express.json());
 
 app.post("/signup",async (req,res)=>{
 
     try{
+    
+    validateSignUpData(req.body);
 
-    let insertDoc= await User.create(req.body);
+    const { firstName, lastName, emailId, password, age, gender, image, about, skills} = req?.body;
+    let hashedPass= await bcrypt.hash(password,10);
+
+    let defaultImg="https://geographyandyou.com/images/user-profile.png";
+
+    let profileImg= (!image || image=="")?defaultImg:image;
+
+    let insertionObj={
+        firstName,
+        lastName,
+        emailId,
+        password:hashedPass,
+        age,
+        gender,
+        image:profileImg,
+        about,
+        skills
+    }
+
+
+
+    let insertDoc= await User.create(insertionObj);
 
     if(insertDoc){
         return res.status(200).json({
@@ -32,6 +58,49 @@ app.post("/signup",async (req,res)=>{
     }
 
 });
+
+app.post("/login",async (req,res)=>{
+    
+    try{
+        const { emailId, password} = req?.body;
+
+        if(!validator.isEmail(emailId)){
+            return res.status(400).json({
+                code:400,
+                message:"Please provide valid email"
+            });
+        }
+
+        let user = await User.findOne({emailId});
+
+        if(!user){
+            return res.status(400).json({
+                code:400,
+                message:"Invalid email"
+            });
+        }
+
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if(isValidPassword){
+            return res.status(200).json({
+                code:200,
+                message:"Logged in successfully"
+            });
+        }
+
+        return res.status(400).json({
+            code:400,
+            message:"Invalid password"
+        });
+
+    }
+    catch(err){
+        return res.status(500).json({
+            code:500,
+            message:"Some error ocurred: "+err.message
+        }); 
+    }
+})
 
 app.get("/feed",async (req,res)=>{
 
