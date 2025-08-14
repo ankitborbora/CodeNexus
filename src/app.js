@@ -7,6 +7,7 @@ const bcrypt= require("bcrypt");
 const validator = require("validator");
 const cookieParser= require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth.js");
 
 app.use(cookieParser());
 app.use(express.json());
@@ -107,32 +108,16 @@ app.post("/login",async (req,res)=>{
     }
 });
 
-app.get("/profile",async (req,res)=>{
+app.get("/profile",userAuth, async (req,res)=>{
+    
     try{
-        let { token } = req.cookies;
 
-        if(!token){
-            return res.status(400).json({
-                code:400,
-                message:"Invalid token"
-            });
-        }
+        let data = req.user;
 
-        const decoded= await jwt.verify(token,"nodejsdev");
-
-        let data = await User.findOne({_id:decoded._id});
-
-        if(data){
-            return res.status(200).json({
-                code:200,
-                message:"Data fetched successfully",
-                data
-            });
-        }
-
-        return res.status(400).json({
-            code:400,
-            message:"Data not found"
+        return res.status(200).json({
+            code:200,
+            message:"Data fetched successfully",
+            data
         });
 
     }
