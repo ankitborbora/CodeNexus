@@ -5,7 +5,10 @@ const User = require("./models/user.js");
 const { validateSignUpData } = require("./utils/validation.js");
 const bcrypt= require("bcrypt");
 const validator = require("validator");
+const cookieParser= require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
+app.use(cookieParser());
 app.use(express.json());
 
 app.post("/signup",async (req,res)=>{
@@ -82,6 +85,8 @@ app.post("/login",async (req,res)=>{
 
         const isValidPassword = await bcrypt.compare(password, user.password);
         if(isValidPassword){
+            const token = await jwt.sign({_id:user._id, email:user.emailId},"nodejsdev");
+            res.cookie("token",token);
             return res.status(200).json({
                 code:200,
                 message:"Logged in successfully"
@@ -100,7 +105,44 @@ app.post("/login",async (req,res)=>{
             message:"Some error ocurred: "+err.message
         }); 
     }
-})
+});
+
+app.get("/profile",async (req,res)=>{
+    try{
+        let { token } = req.cookies;
+
+        if(!token){
+            return res.status(400).json({
+                code:400,
+                message:"Invalid token"
+            });
+        }
+
+        const decoded= await jwt.verify(token,"nodejsdev");
+
+        let data = await User.findOne({_id:decoded._id});
+
+        if(data){
+            return res.status(200).json({
+                code:200,
+                message:"Data fetched successfully",
+                data
+            });
+        }
+
+        return res.status(400).json({
+            code:400,
+            message:"Data not found"
+        });
+
+    }
+    catch(err){
+        return res.status(500).json({
+            code:500,
+            message:"Some error ocurred: "+err.message
+        }); 
+    }
+});
 
 app.get("/feed",async (req,res)=>{
 
