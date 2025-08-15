@@ -84,9 +84,10 @@ app.post("/login",async (req,res)=>{
             });
         }
 
-        const isValidPassword = await bcrypt.compare(password, user.password);
+        const isValidPassword = await user.validatePassword(password);
+        
         if(isValidPassword){
-            const token = await jwt.sign({_id:user._id, email:user.emailId},"nodejsdev");
+            const token = await user.getJWT();
             res.cookie("token",token);
             return res.status(200).json({
                 code:200,
