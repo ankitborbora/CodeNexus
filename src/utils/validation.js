@@ -11,4 +11,12 @@ function validateSignUpData(payload){
 
 }
 
-module.exports= { validateSignUpData };
+function validateProfileEdit(payload){
+    //i have allowed all the fields for updation except password
+    Object.keys(payload).forEach(function(val){
+        if(val=="password") return false;
+    });
+    return true;
+}
+
+module.exports= { validateSignUpData,validateProfileEdit };
