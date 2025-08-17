@@ -4,12 +4,14 @@ const connectDB=require("./config/database");
 const cookieParser= require("cookie-parser");
 const authRouter= require("./routes/auth.js");
 const profileRouter = require("./routes/profile.js");
+const connectionRouter = require("./routes/connections.js");
 
 app.use(cookieParser());
 app.use(express.json());
 
 app.use("/",authRouter);
 app.use("/",profileRouter);
+app.use("/",connectionRouter);
 
 
 connectDB().then(()=>{ 
