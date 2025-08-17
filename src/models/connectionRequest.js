@@ -19,6 +19,8 @@ const connectionRequestSchema=mongoose.Schema({
     }
 }, { timeStamps:true});
 
+connectionRequestSchema.index({ fromUserId:1, toUserId:1 });//creating a compound index for both the fields as we will be using them together for querying out the requests
+
 connectionRequestSchema.pre("save",function(next){
     //checking if user is trying to send a request to himself
     if(this.fromUserId.equals(this.toUserId)) throw new Error("Cannot send request to yourself");

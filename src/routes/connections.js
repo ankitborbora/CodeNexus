@@ -7,8 +7,7 @@ const ConnectionRequest = require("../models/connectionRequest.js");
 connectionRouter.post("/request/send/:status/:toUserId",userAuth,async (req,res)=>{
     try{
         let fromUserId=req.user._id;
-        let status=req.params.status;
-        let toUserId= req.params.toUserId;
+        let { status, toUserId }=req.params;
 
         let allowedStatus=["interested","ignored"];
 
@@ -66,5 +65,56 @@ connectionRouter.post("/request/send/:status/:toUserId",userAuth,async (req,res)
            
     }
 });
+
+connectionRouter.post("/request/review/:status/:requestId", userAuth,async (req,res)=>{
+    try{
+        let loggedInUser=req.user;
+        let { status, requestId }=req.params;
+
+        let allowedStatus=["accepted","rejected"];
+
+        if(!status || !allowedStatus.includes(status)){
+            return res.status(400).json({
+                code:400,
+                message:"Invalid status type for this api"
+            });
+        }
+
+        let connectionRequest = await ConnectionRequest.findOne({
+            _id:requestId,
+            toUserId:loggedInUser._id,
+            status:"interested"
+        });
+
+        if(!connectionRequest){
+            return res.status(404).json({
+                code:404,
+                message:"Request not found"
+            });
+        }
+
+        connectionRequest.status=status;
+
+        let reviewRequest= await connectionRequest.save();
+        if(reviewRequest){
+            return res.status(200).json({
+                code:200,
+                message:"Request "+status
+            });
+        }
+        return res.status(400).json({
+                code:400,
+                message:"Unable to review request"
+        });
+
+    }
+    catch(err){
+        return res.status(500).json({
+            code:500,
+            message:"Some error ocurred: "+err.message
+        }); 
+           
+    }
+})
 
 module.exports=connectionRouter;
