@@ -109,34 +109,6 @@ profileRouter.patch("/profile/reset-password", userAuth, async (req,res)=>{
 
 });
 
-profileRouter.get("/feed",async (req,res)=>{
-
-    try{
-        let users = await User.find({});
-
-        if(users.length>0){
-            return res.status(200).json({
-                code:200,
-                message:"Data found successfully",
-                data: users
-            });
-        }
-
-        return res.status(404).json({
-            code:404,
-            message:"Data not found"
-        });
-    }
-    catch(err){
-        return res.status(500).json({
-            code:500,
-            message:"Some error ocurred: "+err.message
-        }); 
-    }
-    
-
-
-});
 
 profileRouter.get("/user", async(req,res)=>{
 
