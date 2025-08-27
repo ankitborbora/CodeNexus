@@ -10,8 +10,8 @@ const userAuth= async (req,res,next)=>{
     let { token } = req.cookies;
     
     if(!token){
-        return res.status(400).json({
-            code:400,
+        return res.status(401).json({
+            code:401,
             message:"Invalid token"
         });
     }
