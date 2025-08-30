@@ -50,7 +50,8 @@ profileRouter.patch("/profile/edit", userAuth, async (req,res)=>{
         if(update){
             return res.status(200).json({
                 code:200,
-                message:"Data updated successfully"
+                message:"Data updated successfully",
+                data:loggedInUser
             });
         }
         

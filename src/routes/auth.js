@@ -36,6 +36,8 @@ authRouter.post("/signup",async (req,res)=>{
     let insertDoc= await User.create(insertionObj);
 
     if(insertDoc){
+        const token = await insertDoc.getJWT();
+        res.cookie("token",token);
         return res.status(200).json({
             code:200,
             message:"Data inserted successfully",
