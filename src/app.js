@@ -7,6 +7,7 @@ const profileRouter = require("./routes/profile.js");
 const connectionRouter = require("./routes/connections.js");
 const userRouter = require("./routes/user.js");
 const cors = require ("cors");
+const cron = require("./utils/cron");
 const dotenv = require("dotenv");
 
 dotenv.config();

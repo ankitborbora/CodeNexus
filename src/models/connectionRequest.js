@@ -19,7 +19,7 @@ const connectionRequestSchema=mongoose.Schema({
             message:`{VALUE} is not a correct status type`
         }
     }
-}, { timeStamps:true});
+}, { timestamps:true});
 
 connectionRequestSchema.index({ fromUserId:1, toUserId:1 });//creating a compound index for both the fields as we will be using them together for querying out the requests
 
