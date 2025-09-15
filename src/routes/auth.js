@@ -3,6 +3,8 @@ const bcrypt= require("bcrypt");
 const { validateSignUpData } = require("../utils/validation.js");
 const User = require("../models/user.js");
 const validator = require("validator");
+const controller = require("../worker_demo/controller.js");
+const { Worker } = require("worker_threads");
 
 const authRouter= express.Router();
 
@@ -115,7 +117,25 @@ authRouter.post("/logout", async(req,res)=>{
         code:200,
         message:"Logged out successfully"
     })
-})
+});
+
+authRouter.get("/blocking",(req,res)=>{
+    const worker = new Worker(require.resolve("../worker.js"));
+
+    worker.on("message",(result)=>{
+        return res.status(200).send(`Result is ${result}`);
+    });
+    worker.postMessage({});
+});
+
+authRouter.get("/non-blocking",(req,res)=>{
+    res.status(200).send("Non blocking");
+});
+
+// authRouter.get("/blocking",(req,res)=>{
+//     const result = controller.blockingOperation();
+//     return res.status(200).send(`Result is ${result}`);
+// });
 
 
 module.exports=authRouter;

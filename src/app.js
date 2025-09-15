@@ -9,6 +9,8 @@ const userRouter = require("./routes/user.js");
 const cors = require ("cors");
 const cron = require("./utils/cron");
 const dotenv = require("dotenv");
+const http = require("http");
+const initializeSocket = require("./utils/socket");
 
 dotenv.config();
 app.use(cors({
@@ -23,11 +25,13 @@ app.use("/",profileRouter);
 app.use("/",connectionRouter);
 app.use("/",userRouter);
 
+const server = http.createServer(app);
+initializeSocket(server);
 
 connectDB().then(()=>{ 
     console.log("Connected to database");
     
-    app.listen(3000,()=>{ //when the db is connected, only then connect the server
+    server.listen(3000,()=>{ //when the db is connected, only then connect the server
         console.log("server is running");
     });
 }).catch((err)=>{
