@@ -1,3 +1,6 @@
+const dotenv = require("dotenv");
+dotenv.config();
+
 const express=require("express");
 const app= express();//INSTANCE OF EXPRESS
 const connectDB=require("./config/database");
@@ -8,16 +11,14 @@ const connectionRouter = require("./routes/connections.js");
 const userRouter = require("./routes/user.js");
 const cors = require ("cors");
 const cron = require("./utils/cron");
-const dotenv = require("dotenv");
 const http = require("http");
 const initializeSocket = require("./utils/socket");
 
-dotenv.config();
 app.use(cors({
     origin : "http://localhost:5173",
     credentials : true
 }))
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.json());
 
 app.use("/",authRouter);
@@ -31,7 +32,7 @@ initializeSocket(server);
 connectDB().then(()=>{ 
     console.log("Connected to database");
     
-    server.listen(3000,()=>{ //when the db is connected, only then connect the server
+    server.listen(4000,()=>{ //when the db is connected, only then connect the server
         console.log("server is running");
     });
 }).catch((err)=>{
